@@ -146,12 +146,15 @@ def render_srgb_cyl_space(space, resolution, data, c):
 
     x, y, z = data
 
+    factor = 100 if space in ('hsluv', 'hpluv') else 1
+    value_max = factor
+
     # Render the cylinder by iterating through the hues and mapping them at the farthest
     # point from the center creating a hollow cylinder. Also, render the top and bottom disc caps.
     color = Color("srgb", [])
     for c1, t in itertools.product(
         ((x / resolution) * 360 for x in range(0, resolution + 1)),
-        (((x / resolution), i) for i, x in enumerate(range(0, resolution + 1), 0))
+        (((x / resolution) * factor, i) for i, x in enumerate(range(0, resolution + 1), 0))
     ):
 
         # Offset the plot on every other iteration blend the rows into a mesh
@@ -163,8 +166,8 @@ def render_srgb_cyl_space(space, resolution, data, c):
         # Top disc
         x.append(c2 * math.sin(math.radians(c1)))
         y.append(c2 * math.cos(math.radians(c1)))
-        z.append(1)
-        c.append(color.update(space, [c1, c2, 1]).to_string(hex=True))
+        z.append(value_max)
+        c.append(color.update(space, [c1, c2, value_max]).to_string(hex=True))
 
         # Bottom disc
         x.append(c2 * math.sin(math.radians(c1)))
@@ -173,10 +176,10 @@ def render_srgb_cyl_space(space, resolution, data, c):
         c.append(color.update(space, [c1, c2, 0]).to_string(hex=True))
 
         # Cylinder portion
-        x.append(1 * math.sin(math.radians(c1)))
-        y.append(1 * math.cos(math.radians(c1)))
+        x.append(value_max * math.sin(math.radians(c1)))
+        y.append(value_max * math.cos(math.radians(c1)))
         z.append(c2)
-        c.append(color.update(space, [c1, 1, c2]).to_string(hex=True))
+        c.append(color.update(space, [c1, value_max, c2]).to_string(hex=True))
 
 
 def plot_space_in_srgb(space, title="", dark=False, resolution=70):
